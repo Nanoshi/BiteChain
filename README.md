@@ -1,10 +1,12 @@
 # BiteChain
-Track resturant operations on the blockchain 
+Manage resturaunts using blockchain technologies to increase speed and reduce costs.
 
 ## Reasons to use blockchain in the food industry
 
 ### Benifits for everyone
+- Allows for menus and systmes to be displayed in any language
 - Menus can changed on the fly, new/special items everyday.
+- Eco friendly by reducing paper waste from menus and membership cards.
 - Menu views are limited to what a shop has in stock.
 - Customers, wait staff, cooks, and owners are able to view the status of any order at any time.
 - Promotions / point cards can be linked to customer accounts, no more need to issue out or save cards.
