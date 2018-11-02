@@ -1,5 +1,5 @@
 # BiteChain
-Manage resturaunts using blockchain technologies to increase speed and reduce costs.
+Manage restaurants using blockchain technologies to increase speed and reduce costs.
 
 ## Reasons to use blockchain in the food industry
 
