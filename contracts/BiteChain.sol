@@ -28,7 +28,7 @@ contract BiteChain {
     // Used to kill the contract
     address owner;
     // Tracks open orders at a table
-    mapping (uint => bool) openOrders;
+    uint[] openOrders;
     // Orders specific to a customer
     mapping (address => uint[]) custOpenOrders;
 
@@ -60,9 +60,9 @@ contract BiteChain {
     /* Events */
     // Order staus update (customer, orderID, status)
     event logStatusUpdate(
-        address _customer,
-        uint _orderID,
-        State _state
+        address customer,
+        uint indexed orderID,
+        State indexed state
     );
 
     /* Modifiers */    
@@ -103,9 +103,8 @@ contract BiteChain {
         return (menu.length);
     }
 
-    function getMenu(uint _index) public view returns(string memory, uint) {
-       // _menu = menu[_index].name;
-        return (menu[_index].name, menu[_index].cost);   
+    function getMenu(uint index) public view returns(string memory, uint) {
+        return (menu[index].name, menu[index].cost);   
     }
     
     // Submit order payable 
@@ -113,7 +112,7 @@ contract BiteChain {
     /// @param menuChoices - Mapping of food choices
     /// payable - Must pay the total cost of the order
     function customerSubmitOrder(uint table, uint qty1, uint qty2, uint qty3) 
-        public payable returns(uint _orderID){
+        public payable returns(uint orderID){
 
         uint[2][3] memory choices;
         choices[0] = [0,qty1];
@@ -125,50 +124,53 @@ contract BiteChain {
         _cost += choices[1][1] * menu[1].cost;
         _cost += choices[2][1] * menu[2].cost;
 
-        require(_cost == msg.value, "Paid too much or too little.");
+        require(_cost <= msg.value, "Paid too much.");
+        require(_cost >= msg.value, "Paid too little.");
  
-        _orderID = orders.push(Order(msg.sender,table,choices,State.ordered));
+        orderID = orders.push(Order(msg.sender,table,choices,State.ordered)) - 1;
 
-        custOpenOrders[msg.sender].push(_orderID);
-        emit logStatusUpdate(orders[_orderID].customer, _orderID, orders[_orderID].state);
+        openOrders.push(orderID);
+        custOpenOrders[msg.sender].push(orderID);
+        emit logStatusUpdate(orders[orderID].customer, orderID, orders[orderID].state);
     }
 
-    // Tells how many orders are open, then the first 3 order numbers
-    function customerGetOpenOrders(uint _relativeID) public view isCustomer returns(uint, uint){
-        return(
-            custOpenOrders[msg.sender][_relativeID],
-            custOpenOrders[msg.sender].length
-        );
+    // Returs the absolute orderID and number of orders on record for this customer
+    function customerGetOpenOrders(uint _relativeID) public view isCustomer returns(uint ID, uint qty){
+        return(custOpenOrders[msg.sender][_relativeID], custOpenOrders[msg.sender].length);
     }
     
-    function customerGetOrderStatus(uint _orderID) public view isCustomer returns(uint){
-        require(msg.sender == orders[_orderID].customer, "This order does not belong to you.");
-        return(uint(orders[_orderID].state));
+    function watierApproveOrder(uint _orderID) public isWaiter {
+        require(_orderID < orders.length, "ID is invalid.");
+        require(orders[_orderID].state == State.ordered, "This order is not in the ordered state");
+        orders[_orderID].state = State.accpeted;
     }
     
-
-
-    function watierApproveOrder(uint _orderID) public {
-
-    }
-    
-    function cookStart(uint _orderID) public {
-
+    function cookStart(uint _orderID) public isCook {
+        require(_orderID < orders.length, "ID is invalid.");
+        require(orders[_orderID].state == State.accpeted, "This order is not in the ordered state");
+        orders[_orderID].state = State.cooking;
     }
     
     function cookFinishOrder(uint _orderID) public {
-
+        require(_orderID < orders.length, "ID is invalid.");
+        require(orders[_orderID].state == State.cooking, "This order is not in the ordered state");
+        orders[_orderID].state = State.ready;
     }
     
     function waitDeliver(uint _orderID) public {
-
+        require(_orderID < orders.length, "ID is invalid.");
+        require(orders[_orderID].state == State.ready, "This order is not in the ordered state.");
+        orders[_orderID].state = State.delivered;
     }
-    
-    function getOrderStatus(uint _orderID) public {
 
+    function getOrderStatus(uint _orderID) public view isCustomer returns(uint){
+        require(_orderID < orders.length, "ID is invalid.");
+        return(uint(orders[_orderID].state));
     }
-    
-    function getOpenOrders(uint _tableID) public {
 
+    // Returns     
+    function getOpenOrders(uint relIndex) public view returns (uint ID, uint qty){
+        require(relIndex < openOrders.length, "ID is invalid.");
+        return(openOrders[relIndex],openOrders.length);
     }
 } // End contract
