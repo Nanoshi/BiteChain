@@ -1,6 +1,6 @@
-var SimpleBank = artifacts.require("./BiteChain.sol");
+var BiteChain = artifacts.require("./BiteChain.sol");
 
-contract('SimpleBank', function(accounts) {
+contract('BiteChain', function(accounts) {
 
   const owner = accounts[0]
   const alice = accounts[1];
@@ -8,7 +8,7 @@ contract('SimpleBank', function(accounts) {
   const deposit = web3.toBigNumber(2);
 
   it("mark addresses as enrolled", async () => {
-    const bank = await SimpleBank.deployed();
+    const bank = await BiteChain.deployed();
 
     await bank.enroll({from: alice});
 
@@ -20,7 +20,7 @@ contract('SimpleBank', function(accounts) {
   });
 
   it("should deposit correct amount", async () => {
-    const bank = await SimpleBank.deployed();
+    const bank = await BiteChain.deployed();
 
     await bank.enroll({from: bob});
 
@@ -43,7 +43,7 @@ contract('SimpleBank', function(accounts) {
   });
 
   it("should withdraw correct amount", async () => {
-    const bank = await SimpleBank.deployed();
+    const bank = await BiteChain.deployed();
     const initialAmount = 0;
    
     await bank.withdraw(deposit, {from: alice});
