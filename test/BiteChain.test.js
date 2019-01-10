@@ -1,16 +1,40 @@
+//import "truffle/Assert.sol"
+
 var BiteChain = artifacts.require("./BiteChain.sol");
+
 
 contract('BiteChain', function(accounts) {
 
-  const owner = accounts[0]
-  const alice = accounts[1];
-  const bob = accounts[2];
-  const deposit = web3.toBigNumber(2);
+  const owner = accounts[0];
+  const customer = accounts[1];
+  const waiter = accounts[2];
+  const cook = accounts[3]; 
 
-  it("mark addresses as enrolled", async () => {
-    const bank = await BiteChain.deployed();
+  it("Pulling Menu info", async () => {
+    const resturant = await BiteChain.deployed();
 
-    await bank.enroll({from: alice});
+    const getMenuLength = await resturant.getMenuLength({from: customer});
+    assert.equal(getMenuLength, 3, 'It should get the correct number of items on the menu');
+    const getMenu = await resturant.getMenu(0,{from: customer});
+    assert.equal(getMenu[0], 'Sandwich', 'It should return the first item name');
+    assert.equal(getMenu[1], 1, 'It should return the first item cost');
+});
+
+it("Customer making an order", async () => {
+    const didntOrder = await resturant.customerSubmitOrder("1","","","", {from: customer});
+    assert.equal(getMenuLength, 0, 'It should revert if nothing is ordered');
+    const paidTooMuch = await resturant.customerSubmitOrder("1","1","","", {from: customer});
+    assert.equal(paidTooMuch, 3, 'It should revert if paid too much');
+    const paidTooLittle = await resturant.customerSubmitOrder("1","1","","", {from: customer});
+    assert.equal(paidTooLittle, 3, 'It should get the correct number of items on the menu');
+    const paidJustRight = await resturant.customerSubmitOrder("1","1","","", {from: customer});
+    assert.equal(paidJustRight, 3, 'It should get the correct number of items on the menu');
+
+
+
+    await resturant.addWaiter(waiter,{from: owner});
+    await resturant.addcook(cook,{from: owner});
+
 
     const aliceEnrolled = await bank.enrolled(alice, {from: alice});
     assert.equal(aliceEnrolled, true, 'enroll balance is incorrect, check balance method or constructor');
