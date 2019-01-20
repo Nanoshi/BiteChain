@@ -6,6 +6,9 @@ pragma solidity ^0.5.0;
 /// @dev All function calls are currently implement without side effects
 contract BiteChain {
 
+    /*TEST temp data */
+    uint storedData;
+
     /* State Variables */
     address owner;
     // Tracks open orders at a table
@@ -40,18 +43,11 @@ contract BiteChain {
     }
     Order[] orders;
 
-    /* Events - can't seem to track
-    // Order staus update (customer, orderID, status)
-    event logStatusUpdate(
-        address customer,
-        uint orderID,
-        State state
-    );*/
-
     /* Modifiers */    
-    // Checks if the sender is an owner, cook, waiter or customer   
+    // Checks if the sender is an owner, cook, waiter or customer
+    // *The contractor is ALWAYS the owner, cannot be demoted*  
     modifier isOwner(){
-        require(owners[msg.sender] == true, "Only an owner can modify this");
+        require(owners[msg.sender] == true || (msg.sender == owner), "Only an owner can modify this");
         _;
     }
     modifier isCook(){
@@ -81,6 +77,16 @@ contract BiteChain {
         menu.push(Menu("Taco", 3));
         menu.push(Menu("Chicken",2));
     }   
+
+    /*TEST temp data */
+    function set(uint x) public {
+        storedData = x;
+    }
+
+    function get() public view returns (uint) {
+        return storedData;
+    }
+
 
     /// @notice Tells you how many items are on the menu
     /// @return count of menu items
@@ -133,8 +139,6 @@ contract BiteChain {
         orderID = orders.push(Order(msg.sender,table,choices,_custRelID,_openRelID,State.ordered)) - 1;
         openOrders.push(orderID);
         custOpenOrders[msg.sender].push(orderID);
-
-//        emit logStatusUpdate(orders[orderID].customer, orderID, orders[orderID].state);
     }
 
     /// @notice Returns the absolute global orderID and quantity of orders on record for this customer
@@ -268,16 +272,38 @@ contract BiteChain {
         return(true);
     }
 
+    /// @notice Checks to see if the requested address is a waiter
+    /// @param queryAddress The address that you want to confirm
+    /// @return success true if address is a member of waiters
     function  getWaiter(address queryAddress) public view returns (bool success){
         return(waiters[queryAddress]);
     }
+
+    /// @notice Checks to see if the requested address is a cook
+    /// @param queryAddress The address that you want to confirm
+    /// @return success true if address is a member of cooks
     function  getCook(address queryAddress) public view returns (bool success){
         return(cooks[queryAddress]);
     }
+
+    /// @notice Checks to see if the requested address is an owner
+    /// @param queryAddress The address that you want to confirm
+    /// @return success true if address is a member of owners
     function  getOwner(address queryAddress) public view returns (bool success){
         return(owners[queryAddress]);
     }
 
-    // Withdrawl Function 
+    /// @notice Checks to see if the requested address is a waiter
+    /// @param queryAddress The address that you want to confirm
+    /// @return success true if address is a member of waiters
+    function withdraw(uint withdrawAmount) public isOwner {
+        require (address(this).balance >= withdrawAmount, "Requested more money tha the contract has.");
+        msg.sender.transfer(withdrawAmount);
+    }
+
+    /// @notice Fallback function
+    /// @dev No params nor returns. This is here just in case no functions are called
+    function () external payable{}
+
 
 } // End contract
