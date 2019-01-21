@@ -79,9 +79,16 @@ class App extends Component {
     const _item2 = await contract.methods.getMenu(2).call();
 
     // Get Roles
-    const _isOwner = await contract.methods.getCook(accounts[0]).call();
-    const _isWaiter = await contract.methods.getCook(accounts[0]).call();
-    const _isCook = await contract.methods.getWaiter(accounts[0]).call();
+    const _isOwner = await contract.methods.getOwner(accounts[0]).call();
+    const _isWaiter = await contract.methods
+      .getCook(this.state.accounts[0])
+      .call();
+    const _isCook = await contract.methods
+      .getWaiter(this.state.accounts[0])
+      .call();
+    const _custOpenOrders = await contract.methods
+      .customerGetOpenOrders(0)
+      .call();
 
     // Update state with the result.
     this.setState({
@@ -92,9 +99,11 @@ class App extends Component {
       menuPrice1: _item1[1],
       menuName2: _item2[0],
       menuPrice2: _item2[1],
+      //owner: _owner,
       isOwner: _isOwner,
       isWaiter: _isWaiter,
-      isCook: _isCook
+      isCook: _isCook,
+      custOpenOrders: _custOpenOrders
     });
   };
 
