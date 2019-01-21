@@ -11,6 +11,7 @@ class App extends Component {
     accounts: null,
     contract: null,
     owner: null,
+    //Menu Info
     menuLength: null,
     menuName0: null,
     menuPrice0: null,
@@ -18,10 +19,39 @@ class App extends Component {
     menuPrice1: null,
     menuName2: null,
     menuPrice2: null,
+    // Role info
     isOwner: null,
     isWaiter: null,
     isCook: null,
-    custOpenOrders: null
+    // Customer Order info
+    custOpenOrders: null,
+    inputValue: "",
+    item1qty: 0,
+    item1sub: 5,
+    // Get open order info
+    openOrderQty: 0,
+    // Can't figure out how to optimize, will just get state for EVERYTHING!
+    orderID1: null,
+    orderID2: null,
+    orderID3: null,
+    orderStatus1: null,
+    orderStatus2: null,
+    orderStatus3: null,
+    orderTable1: null,
+    orderTable2: null,
+    orderTable3: null,
+    orderCustomer1: null,
+    orderCustomer2: null,
+    orderCustomer3: null,
+    orderQty11: null,
+    orderQty12: null,
+    orderQty13: null,
+    orderQty21: null,
+    orderQty22: null,
+    orderQty23: null,
+    orderQty31: null,
+    orderQty32: null,
+    orderQty33: null
   };
 
   componentDidMount = async () => {
@@ -53,6 +83,7 @@ class App extends Component {
     }
   };
 
+  // Testing and Troubleshooting
   runExample = async () => {
     const { accounts, contract } = this.state;
 
@@ -82,6 +113,10 @@ class App extends Component {
     const _isOwner = await contract.methods.getCook(accounts[0]).call();
     const _isWaiter = await contract.methods.getCook(accounts[0]).call();
     const _isCook = await contract.methods.getWaiter(accounts[0]).call();
+    // const _item1sub = this.refs.item1qty;
+
+    // Get Qty of open orders
+    const _openOrderQty = await contract.methods.getOpenOrders(0).call();
 
     // Update state with the result.
     this.setState({
@@ -94,9 +129,24 @@ class App extends Component {
       menuPrice2: _item2[1],
       isOwner: _isOwner,
       isWaiter: _isWaiter,
-      isCook: _isCook
+      isCook: _isCook,
+      openOrderQty: _openOrderQty[1]
+
+      // item1sub: _item1sub
     });
   };
+
+  //onChangeEvent test doesn't work!
+  changeQty(event) {
+    this.setState({ item1qty: event.value });
+  }
+
+  // test a function
+  //onGetOrderID(relID) = async () => {
+  //const response =  await contract.methods.getOpenOrders(relID).call()
+  //console.log(response);
+  //    this.setState({ openOrderID: response });
+  //}
 
   render() {
     if (!this.state.web3) {
@@ -104,9 +154,16 @@ class App extends Component {
     }
 
     // Conditional formatting goees here
-    //if (this.state.isWaiter) {
-    //  displayOwner = "You are logged in as a Waiter. <br/>";
-    //}
+    if (this.state.isWaiter) {
+      let displayOwner = <br />;
+    }
+
+    // Set up the order table here
+
+    for (var i = 0; i < this.state.openOrderQty; i++) {
+      // Iterate over numeric indexes from 0 to 5, as everyone expects.
+      console.log(i);
+    }
 
     return (
       <div className="App">
@@ -115,10 +172,10 @@ class App extends Component {
         <p>
           Welcome, Acct: {this.state.accounts[0]} <br />
           {this.state.custOpenOrders}
-          {this.state.isOwner ? "You are logged in as an Owner\n." : "not"}
-          {this.state.isWaiter ? "You are logged in as a Waiter. \r\n" : "not"}
-          {this.state.isCook ? "You are logged in as a Cook. \r\n" : "not"}
-          {this.state.isCustomer ? "You are logged in as a Customer. \r\n" : ""}
+          {this.state.isOwner ? "You are logged in as an Owner. " : ""}
+          {this.state.isWaiter ? "You are logged in as a Waiter. " : ""}
+          {this.state.isCook ? "You are logged in as a Cook. " : ""}
+          {this.state.isCustomer ? "You are logged in as a Customer. " : ""}
           <br />
           This contract is owned by: {this.state.owner}
         </p>
@@ -130,15 +187,15 @@ class App extends Component {
                   <th>Owner's Overview</th>
                 </tr>
                 <tr>
-                  <td>Open Orders</td>
+                  <td>Open Orders: {this.state.openOrderQty}</td>
                   <td />
                 </tr>
                 <tr>
-                  <td>Total Orders</td>
+                  <td>Total Orders:</td>
                   <td />
                 </tr>
                 <tr>
-                  <td>Wei in account</td>
+                  <td>Wei in account:</td>
                   <td />
                 </tr>
               </table>
@@ -158,26 +215,55 @@ class App extends Component {
                   <td>
                     {this.state.menuName0} - {this.state.menuPrice0}
                   </td>
-                  <td />
+                  <td>
+                    <select name="item0" id="item0qty">
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                    </select>
+                  </td>
                   <td />
                 </tr>
                 <tr>
                   <td>
                     {this.state.menuName1} - {this.state.menuPrice1}
                   </td>
-                  <td />
+                  <td>
+                    <select name="item1" id="item1qty">
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                    </select>
+                  </td>
                   <td />
                 </tr>
                 <tr>
                   <td>
                     {this.state.menuName2} - {this.state.menuPrice2}
                   </td>
-                  <td />
+                  <td>
+                    <select name="item2" id="item2qty">
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                    </select>
+                  </td>
                   <td />
                 </tr>
                 <tr>
                   <td />
-                  <td>Submit Order</td>
+                  <td>
+                    <button>Submit Order</button>
+                  </td>
                   <td />
                 </tr>
               </table>
@@ -203,6 +289,12 @@ class App extends Component {
         </div>
       </div>
     );
+  }
+
+  updateInputValue(evt) {
+    this.setState({
+      inputValue: evt.target.value
+    });
   }
 }
 
