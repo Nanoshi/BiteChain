@@ -6,16 +6,14 @@ pragma solidity ^0.5.0;
 /// @dev All function calls are currently implement without side effects
 contract BiteChain {
 
-    /*TEST temp data */
-    uint storedData;
-
     /* State Variables */
     address owner;
     // Tracks open orders at a table
     uint[] openOrders;
+    bool circuitBreaker;
+
     // Orders specific to a customer
     mapping (address => uint[]) custOpenOrders;
-
     // Tracking of owners, cooks and waiters
     mapping (address => bool) owners;
     mapping (address => bool) cooks;
@@ -64,29 +62,23 @@ contract BiteChain {
     }
     
     /* Initialize Contract */
+    /// @notice Initializing the contract
+    /// @dev No starting paramaters needed
     constructor() public {
         // Give initial control to contract owner
         // Owner starts with all roles
         owners[msg.sender] = true;
         cooks[msg.sender] = true;
         waiters[msg.sender] = true;
-        owner = msg.sender; // Backdoor in case you delete yourself
+        circuitBreaker = false;
+        // Backdoor in case you delete yourself, you will still be an owner
+        owner = msg.sender;
 
         // Set up the menu
         menu.push(Menu("Sandwich",1));
         menu.push(Menu("Taco", 3));
         menu.push(Menu("Chicken",2));
     }   
-
-    /*TEST temp data */
-    function set(uint x) public {
-        storedData = x;
-    }
-
-    function get() public view returns (uint) {
-        return storedData;
-    }
-
 
     /// @notice Tells you how many items are on the menu
     /// @return count of menu items
@@ -113,6 +105,9 @@ contract BiteChain {
     function customerSubmitOrder(uint table, uint qty0, uint qty1, uint qty2) 
         public payable returns(uint orderID){
 
+        //Quick check if the circuit breaker is on
+        require(circuitBreaker == false, "Sorry, currently not taking orders.");
+
         // Prep info to be stored into order[x].memuChoices
         uint[2][3] memory choices;
         choices[0] = [0,qty0];
@@ -124,8 +119,8 @@ contract BiteChain {
         _cost += choices[1][1] * menu[1].cost;
         _cost += choices[2][1] * menu[2].cost;
 
-        require(_cost <= msg.value, "Paid too much.");
-        require(_cost >= msg.value, "Paid too little.");
+        require(_cost >= msg.value, "Paid too much.");
+        require(_cost <= msg.value, "Paid too little.");
 
         // Add a reference to the customer relative ID 
         uint _custRelID = custOpenOrders[msg.sender].length;
@@ -297,8 +292,24 @@ contract BiteChain {
     /// @param queryAddress The address that you want to confirm
     /// @return success true if address is a member of waiters
     function withdraw(uint withdrawAmount) public isOwner {
-        require (address(this).balance >= withdrawAmount, "Requested more money tha the contract has.");
+        require (address(this).balance >= withdrawAmount, "Requested more money than the contract has.");
         msg.sender.transfer(withdrawAmount);
+    }
+
+    /// @notice Destroy contract
+    /// @dev Any user in the owners map can destroy
+    function destroyContract() public isOwner{
+        selfdestruct(msg.sender);
+    }
+
+    /// @notice Disable circuit breaker and prevent any additional orders from being placed
+    function disableBreaker() public isOwner{
+        circuitBreaker = false;
+    }
+
+    /// @notice Enable circuit breaker and prevent any additional orders from being placed
+    function enableBreaker() public isOwner{
+        circuitBreaker = true;
     }
 
     /// @notice Fallback function

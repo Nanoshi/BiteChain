@@ -6,7 +6,6 @@ import "./App.css";
 
 class App extends Component {
   state = {
-    storageValue: 0,
     web3: null,
     accounts: null,
     contract: null,
@@ -83,20 +82,6 @@ class App extends Component {
     }
   };
 
-  // Testing and Troubleshooting
-  runExample = async () => {
-    const { accounts, contract } = this.state;
-
-    // Stores a given value, 5 by default.
-    await contract.methods.set(5).send({ from: accounts[0] });
-
-    // Get the value from the contract to prove it worked.
-    const response = await contract.methods.get().call();
-
-    // Update state with the result.
-    this.setState({ storageValue: response });
-  };
-
   loadMenu = async () => {
     const { accounts, contract } = this.state;
 
@@ -153,11 +138,6 @@ class App extends Component {
       return <div>Loading Web3, accounts, and contract...</div>;
     }
 
-    // Conditional formatting goees here
-    if (this.state.isWaiter) {
-      let displayOwner = <br />;
-    }
-
     // Set up the order table here
 
     for (var i = 0; i < this.state.openOrderQty; i++) {
@@ -176,8 +156,6 @@ class App extends Component {
           {this.state.isWaiter ? "You are logged in as a Waiter. " : ""}
           {this.state.isCook ? "You are logged in as a Cook. " : ""}
           {this.state.isCustomer ? "You are logged in as a Customer. " : ""}
-          <br />
-          This contract is owned by: {this.state.owner}
         </p>
         <table id="TopTable" align="center" width="800px" border="1">
           <tr>
@@ -195,7 +173,7 @@ class App extends Component {
                   <td />
                 </tr>
                 <tr>
-                  <td>Wei in account:</td>
+                  <td>Wei in account:.,mn</td>
                   <td />
                 </tr>
               </table>
@@ -270,23 +248,89 @@ class App extends Component {
             </td>
           </tr>
         </table>
-        <h2>Smart Contract Example</h2>
-        <p>Owner of contract: {this.state.owner}</p>
-        <p> Open orders: </p>
-        <p>
-          Today we have {this.state.menuLength} items for sale. <br />
-          Menu / Price in wei:{" "}
-        </p>
-        <p>
-          {this.state.menuName0} {this.state.menuPrice0}
-        </p>
-        <p>
-          Try changing the value stored on <strong>line 40</strong> of App.js.
-        </p>
-        <div>
-          The stored value is: {this.state.storageValue}
-          {this.state.owner}
-        </div>
+        <h2>Order Tracking</h2>
+        <h3>
+          (Ordering and tracking not implemented on React yet - please use Remix
+          for now)
+        </h3>
+        <table align="center" border="1" width="800px">
+          <tr>
+            <th>
+              Ordered
+              <br />
+              For Waiter
+            </th>
+            <th>
+              Approved
+              <br />
+              For Cook
+            </th>
+            <th>
+              Cooking
+              <br />
+              For Cook
+            </th>
+            <th>
+              Ready
+              <br />
+              For Waiter
+            </th>
+          </tr>
+          <tr>
+            <td>
+              OrderID: x<br />
+              Customer: 0x00..1234
+              <br />
+              Table:5
+              <br />
+              <u>
+                <strong>Order:</strong>
+              </u>
+              <br /> Sandwich: 1<br /> Chicken:2
+              <br />
+              <button>Approve Order</button>
+            </td>
+            <td>
+              OrderID: x<br />
+              Customer: 0x00..1234
+              <br />
+              Table:5
+              <br />
+              <u>
+                <strong>Order:</strong>
+              </u>
+              <br /> Sandwich: 1<br /> Chicken:2
+              <br />
+              <button>Begin Cooking</button>
+            </td>
+            <td>
+              OrderID: x<br />
+              Customer: 0x00..1234
+              <br />
+              Table:5
+              <br />
+              <u>
+                <strong>Order:</strong>
+              </u>
+              <br /> Sandwich: 1<br /> Chicken:2
+              <br />
+              <button>Finished Cooking</button>
+            </td>
+            <td>
+              OrderID: x<br />
+              Customer: 0x00..1234
+              <br />
+              Table:5
+              <br />
+              <u>
+                <strong>Order:</strong>
+              </u>
+              <br /> Sandwich: 1<br /> Chicken:2
+              <br />
+              <button>Delivered Food</button>
+            </td>
+          </tr>
+        </table>
       </div>
     );
   }
