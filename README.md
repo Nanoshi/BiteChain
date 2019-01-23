@@ -37,8 +37,9 @@ To get Ethereum running please type `ganche-cli` in the terminal
 
 Open a new terminal and navigate to the downloaded project and run the following commands
 
-```
-truffle compile
+```truffle compile
 truffle migrate
-truffle test
-```
+truffle test```
+
+
+
